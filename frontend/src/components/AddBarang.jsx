@@ -28,7 +28,7 @@ const AddBarang = () => {
       <div className="column is-half">
         <form onSubmit={saveBarang}>
           <div className="field">
-            <label className="label">Nama Barang</label>
+            <label className="label">Nama Barang Cuy</label>
             <div className="control">
               <input 
                 type="text" 
