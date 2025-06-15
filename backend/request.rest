@@ -1,0 +1,177 @@
+#ROLE
+### GET 
+GET http://localhost:5000/roles
+
+### POST 
+POST http://localhost:5000/roles
+Content-Type: application/json
+
+{
+  "role_name": "Admin"
+}
+
+### POST 
+POST http://localhost:5000/roles
+Content-Type: application/json
+
+{
+  "role_name": "User"
+}
+
+### PATCH 
+PATCH http://localhost:5000/roles/1
+Content-Type: application/json
+
+{
+  "role_name": "Super Admin"
+}
+
+### DELETE 
+DELETE http://localhost:5000/roles/2
+
+#USER
+### GET 
+GET http://localhost:5000/users
+
+### POST 
+POST http://localhost:5000/users
+Content-Type: application/json
+
+{
+  "name": "Rizky",
+  "email": "rizky@gmail.com",
+  "password": "123456",
+  "role_id": 1
+}
+
+### POST 
+POST http://localhost:5000/users
+Content-Type: application/json
+
+{
+  "name": "Ucup",
+  "email": "ucup@gmail.com",
+  "password": "123456",
+  "role_id": 2
+}
+
+### PATCH 
+PATCH http://localhost:5000/users/1
+Content-Type: application/json
+
+{
+  "name": "Rizky Update",
+  "email": "rizky_new@gmail.com",
+  "password": "updatedpass",
+  "role_id": 1
+}
+
+### DELETE
+DELETE http://localhost:5000/users/3
+
+#CATEGORY
+### GET 
+GET http://localhost:5000/categories
+
+### POST
+POST http://localhost:5000/categories
+Content-Type: application/json
+
+{
+  "category_name": "Elektronik"
+}
+
+# CATEGORY
+### GET
+GET http://localhost:5000/products
+
+### POST
+POST http://localhost:5000/products
+Content-Type: application/json
+
+{
+  "product_name": "Kipas Angin",
+  "description": "kipas Angin premium murah bangett",
+  "price": 1500000,
+  "stock": 20,
+  "category_id": 1,
+  "seller_id": 2,
+  "image_url": "https://example.com/kipas.jpg"
+}
+
+#TRANSACTION
+### GET
+GET http://localhost:5000/transactions
+
+### POST
+POST http://localhost:5000/transactions
+Content-Type: application/json
+
+{
+  "user_id": 1,
+  "total_price": 250000,
+  "status": "pending"
+}
+
+#DETAIL
+### Get all transaction details
+GET http://localhost:5000/transaction-details
+
+### Get a single transaction detail by ID
+GET http://localhost:5000/transaction-details/1
+
+### Create a new transaction detail
+POST http://localhost:5000/transaction-details
+Content-Type: application/json
+
+{
+  "transaction_id": 1,
+  "product_id": 1,
+  "quantity": 3,
+  "price": 25000
+}
+
+### Update transaction detail
+PATCH http://localhost:5000/transaction-details/1
+Content-Type: application/json
+
+{
+  "transaction_id": 1,
+  "product_id": 1,
+  "quantity": 5,
+  "price": 27000
+}
+
+### Delete transaction detail
+DELETE http://localhost:5000/transaction-details/1
+
+
+#CART
+### GET
+GET http://localhost:5000/carts
+
+### Get cart by ID
+GET http://localhost:5000/carts/1
+
+### Create cart
+POST http://localhost:5000/carts
+Content-Type: application/json
+
+{
+  "user_id": 1,
+  "product_id": 1,
+  "quantity": 3
+}
+
+### Update cart
+PATCH http://localhost:5000/carts/1
+Content-Type: application/json
+
+{
+  "user_id": 1,
+  "product_id": 1,
+  "quantity": 5
+}
+
+### Delete cart
+DELETE http://localhost:5000/carts/1
