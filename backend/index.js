@@ -18,5 +18,6 @@ app.use(ProductRoute);
 app.use(TransactionRoute);
 app.use(TransactionDetailRoute);
 app.use(CartRoute);
+app.use('/uploads', express.static('uploads'));
 
 app.listen(5000,()=>console.log('Server up and running.....'));
