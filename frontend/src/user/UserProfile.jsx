@@ -1,59 +1,62 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import UserHeader from '../components/UserHeader';
 import UserFooter from '../components/UserFooter';
 
 const UserProfile = () => {
-  const [user, setUser] = useState({
-    nama: "Rifqi Yusufi",
-    email: "rifqi@example.com",
-    alamat: "Jalan Mawar No. 12, Bandung",
-    telepon: "08123456789"
-  });
-
+  const [user, setUser] = useState({});
+  const [transactions, setTransactions] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState(null);
+  const [formData, setFormData] = useState({});
+  const [newPassword, setNewPassword] = useState('');
 
-  const transaksi = [
-    {
-      id: 1,
-      tanggal: '2025-06-01',
-      total: 'Rp 150.000',
-      status: 'Selesai',
-      items: [
-        { nama: 'Pupuk Organik', jumlah: 2, harga: 'Rp 50.000' },
-        { nama: 'Bibit Jagung', jumlah: 1, harga: 'Rp 50.000' }
-      ]
-    },
-    {
-      id: 2,
-      tanggal: '2025-06-05',
-      total: 'Rp 90.000',
-      status: 'Dibayar',
-      items: [
-        { nama: 'Pupuk Kompos', jumlah: 3, harga: 'Rp 30.000' }
-      ]
-    },
-    {
-      id: 3,
-      tanggal: '2025-06-10',
-      total: 'Rp 200.000',
-      status: 'Pending',
-      items: [
-        { nama: 'Pupuk NPK', jumlah: 4, harga: 'Rp 50.000' }
-      ]
+  const localUser = JSON.parse(localStorage.getItem('user'));
+
+  useEffect(() => {
+    if (localUser?.id) {
+      fetchUser();
+      fetchTransactions();
     }
-  ];
+  }, []);
 
-  const [formData, setFormData] = useState(user);
+  const fetchUser = async () => {
+    try {
+      const res = await axios.get(`http://localhost:5000/users/${localUser.id}`);
+      setUser(res.data);
+      setFormData(res.data);
+    } catch (err) {
+      console.error('Failed to fetch user:', err);
+    }
+  };
+
+  const fetchTransactions = async () => {
+    try {
+      const res = await axios.get(`http://localhost:5000/transactions/user/${localUser.id}`);
+      setTransactions(res.data);
+    } catch (err) {
+      console.error('Failed to fetch transactions:', err);
+    }
+  };
 
   const handleInputChange = (e) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleSave = () => {
-    setUser(formData);
-    setShowModal(false);
+  const handleSave = async () => {
+    try {
+      const updateData = { ...formData };
+      if (newPassword) updateData.password = newPassword;
+
+      await axios.put(`http://localhost:5000/users/${user.id}`, updateData);
+      setUser(updateData);
+      setShowModal(false);
+      alert('Profil berhasil diperbarui!');
+    } catch (err) {
+      console.error('Gagal update profil:', err);
+      alert('Gagal memperbarui profil.');
+    }
   };
 
   const handleDetail = (trx) => {
@@ -80,18 +83,15 @@ const UserProfile = () => {
         </div>
       </div>
 
+      {/* Content */}
       <div className="container mt-100 mb-100">
         <div className="row">
           <div className="col-lg-4 mb-4">
             <div className="card shadow-sm p-4">
               <h4 className="orange-text mb-3">Data Diri</h4>
-              <p><strong>Nama:</strong> {user.nama}</p>
+              <p><strong>Nama:</strong> {user.name}</p>
               <p><strong>Email:</strong> {user.email}</p>
-              <p><strong>Alamat:</strong> {user.alamat}</p>
-              <p><strong>Telepon:</strong> {user.telepon}</p>
-              <a className="boxed-btn mt-3" href="#" onClick={(e) => { e.preventDefault(); setShowModal(true); }}>
-                Edit Profil
-              </a>
+              <button className="boxed-btn mt-3" onClick={() => setShowModal(true)}>Edit Profil</button>
             </div>
           </div>
           <div className="col-lg-8">
@@ -109,21 +109,20 @@ const UserProfile = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {transaksi.map((trx) => (
+                    {transactions.map((trx) => (
                       <tr key={trx.id}>
                         <td>{trx.id}</td>
-                        <td>{trx.tanggal}</td>
-                        <td>{trx.total}</td>
-                        <td>
-                          <span className={`badge ${trx.status === 'Selesai' ? 'badge-success' : trx.status === 'Dibayar' ? 'badge-primary' : 'badge-warning'}`}>
-                            {trx.status}
-                          </span>
-                        </td>
+                        <td>{new Date(trx.created_at).toLocaleDateString()}</td>
+                        <td>Rp{Number(trx.total_price).toLocaleString()}</td>
+                        <td>{trx.status}</td>
                         <td>
                           <button className="btn btn-sm btn-info" onClick={() => handleDetail(trx)}>Detail</button>
                         </td>
                       </tr>
                     ))}
+                    {transactions.length === 0 && (
+                      <tr><td colSpan="5" className="text-center">Belum ada transaksi.</td></tr>
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -140,29 +139,12 @@ const UserProfile = () => {
             <div className="modal-content shadow">
               <div className="modal-header bg-light text-dark">
                 <h5 className="modal-title">Edit Profil</h5>
-                <button className="close text-white" onClick={() => setShowModal(false)}>
-                  <span>&times;</span>
-                </button>
+                <button className="close" onClick={() => setShowModal(false)}><span>&times;</span></button>
               </div>
               <div className="modal-body">
-                <form>
-                  <div className="form-group">
-                    <label>Nama</label>
-                    <input type="text" name="nama" className="form-control" value={formData.nama} onChange={handleInputChange} />
-                  </div>
-                  <div className="form-group">
-                    <label>Email</label>
-                    <input type="email" name="email" className="form-control" value={formData.email} onChange={handleInputChange} />
-                  </div>
-                  <div className="form-group">
-                    <label>Alamat</label>
-                    <textarea name="alamat" className="form-control" value={formData.alamat} onChange={handleInputChange} />
-                  </div>
-                  <div className="form-group">
-                    <label>Telepon</label>
-                    <input type="text" name="telepon" className="form-control" value={formData.telepon} onChange={handleInputChange} />
-                  </div>
-                </form>
+                <input name="name" value={formData.name} onChange={handleInputChange} className="form-control mb-2" placeholder="Nama" />
+                <input name="email" value={formData.email} onChange={handleInputChange} className="form-control mb-2" placeholder="Email" />
+                <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="form-control mb-2" placeholder="Password Baru (opsional)" />
               </div>
               <div className="modal-footer">
                 <button className="btn btn-secondary" onClick={() => setShowModal(false)}>Batal</button>
@@ -180,18 +162,16 @@ const UserProfile = () => {
             <div className="modal-content shadow">
               <div className="modal-header bg-info text-white">
                 <h5 className="modal-title">Detail Transaksi #{selectedTransaction.id}</h5>
-                <button className="close text-white" onClick={() => setShowDetailModal(false)}>
-                  <span>&times;</span>
-                </button>
+                <button className="close" onClick={() => setShowDetailModal(false)}><span>&times;</span></button>
               </div>
               <div className="modal-body">
-                <p><strong>Tanggal:</strong> {selectedTransaction.tanggal}</p>
-                <p><strong>Total:</strong> {selectedTransaction.total}</p>
+                <p><strong>Tanggal:</strong> {new Date(selectedTransaction.created_at).toLocaleDateString()}</p>
+                <p><strong>Total:</strong> Rp{Number(selectedTransaction.total_price).toLocaleString()}</p>
                 <p><strong>Status:</strong> {selectedTransaction.status}</p>
                 <h6 className="mt-3">Item:</h6>
                 <ul>
-                  {selectedTransaction.items.map((item, index) => (
-                    <li key={index}>{item.nama} - {item.jumlah} x {item.harga}</li>
+                  {selectedTransaction.TransactionDetails.map((item, i) => (
+                    <li key={i}>{item.Product?.product_name} - {item.quantity} x Rp{Number(item.price).toLocaleString()}</li>
                   ))}
                 </ul>
               </div>

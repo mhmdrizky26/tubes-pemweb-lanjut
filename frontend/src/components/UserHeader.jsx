@@ -1,10 +1,18 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
+import React from 'react';
+import { Link } from 'react-router-dom';
 
 const UserHeader = () => {
+  const user = JSON.parse(localStorage.getItem('user'));
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = '/login';
+  };
+
   return (
     <div>
-        {/* Header */}
+      {/* Header */}
       <div className="top-header-area" id="sticker">
         <div className="container">
           <div className="row">
@@ -13,7 +21,7 @@ const UserHeader = () => {
                 {/* Logo */}
                 <div className="site-logo">
                   <Link to='/'>
-                    <img src="assets/img/logo.png" alt="" />
+                    <img src="assets/img/logo.png" alt="Logo" />
                   </Link>
                 </div>
                 {/* Logo */}
@@ -37,13 +45,24 @@ const UserHeader = () => {
                       <div className="header-icons">
                         <Link className="shopping-cart" to="/cart">
                           <i className="fas fa-shopping-cart"></i>
-                        </Link>                     
-                        <Link to="/login" className="boxed-btn">
-                          Login
                         </Link>
+
+                        {user ? (
+                          <>
+                            <Link to="/profile" className="boxed-btn mr-2">
+                              Profile
+                            </Link>
+                            <button onClick={handleLogout} className="boxed-btn mr-2" style={{ borderRadius: '20px'}}>
+                              Logout
+                            </button>
+                          </>
+                        ) : (
+                          <Link to="/login" className="boxed-btn">
+                            Login
+                          </Link>
+                        )}
                       </div>
                     </li>
-
                   </ul>
                 </nav>
 
@@ -56,7 +75,7 @@ const UserHeader = () => {
       </div>
       {/* End Header */}
     </div>
-  )
-}
+  );
+};
 
-export default UserHeader
+export default UserHeader;

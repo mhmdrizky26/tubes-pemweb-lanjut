@@ -34,7 +34,7 @@ const Page404 = () => {
                   <i className="far fa-sad-cry"></i>
                   <h1>Oops! Not Found.</h1>
                   <p>The page you requested for is not found.</p>
-                  <a href="index.html" className="boxed-btn">Back to Home</a>
+                  <Link to='/' className='boxed-btn'>Back to Home</Link>                  
                 </div>
               </div>
             </div>

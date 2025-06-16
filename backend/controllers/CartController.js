@@ -6,7 +6,17 @@ import Product from "../models/ProductModel.js";
 export const getCarts = async (req, res) => {
   try {
     const response = await Cart.findAll({
-      include: [User, Product]
+      include: [
+        {
+          model: User,
+          attributes: ['id', 'name', 'email']
+        },
+        {
+          model: Product,
+          as: 'product', // ⬅️ Tambahkan ini agar cocok dengan relasi di CartModel.js
+          attributes: ['id', 'product_name', 'price', 'image_url']
+        }
+      ]
     });
     res.status(200).json(response);
   } catch (error) {
@@ -14,12 +24,23 @@ export const getCarts = async (req, res) => {
   }
 };
 
-// Get cart by ID
+
+// Get cart by ID (jika Anda memiliki rute untuk ini, pastikan juga menginclude Product)
 export const getCartById = async (req, res) => {
   try {
     const response = await Cart.findOne({
       where: { id: req.params.id },
-      include: [User, Product]
+      include: [
+        {
+          model: User,
+          attributes: ['id', 'name', 'email']
+        },
+        {
+          model: Product, // Pastikan ini ada
+          as: 'product',
+          attributes: ['id', 'product_name', 'price', 'image_url']
+        }
+      ]
     });
     if (!response) return res.status(404).json({ message: "Cart not found" });
     res.status(200).json(response);
@@ -28,12 +49,58 @@ export const getCartById = async (req, res) => {
   }
 };
 
-// Create cart
+// ... (fungsi getCartsByUserId - ini juga harus menginclude Product)
+export const getCartsByUserId = async (req, res) => {
+  try {
+    const response = await Cart.findAll({
+      where: {
+        user_id: req.params.userId
+      },
+      include: [
+        {
+          model: User,
+          attributes: ['id', 'name', 'email']
+        },
+        {
+          model: Product, // Pastikan ini ada
+          as: 'product',
+          attributes: ['id', 'product_name', 'price', 'image_url']
+        }
+      ]
+    });
+    if (!response || response.length === 0) {
+      return res.status(404).json({ message: "No cart items found for this user." });
+    }
+    res.status(200).json(response);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Modified: Create or Update cart (ini sudah kita perbaiki sebelumnya)
 export const createCart = async (req, res) => {
   const { user_id, product_id, quantity } = req.body;
+  const qtyToAdd = quantity || 1;
+
   try {
-    await Cart.create({ user_id, product_id, quantity });
-    res.status(201).json({ message: "Cart created successfully" });
+    let cartItem = await Cart.findOne({
+      where: {
+        user_id: user_id,
+        product_id: product_id
+      }
+    });
+
+    if (cartItem) {
+      await cartItem.update({ quantity: cartItem.quantity + qtyToAdd });
+      res.status(200).json({ message: "Product quantity updated in cart!", cartItem });
+    } else {
+      const newCartItem = await Cart.create({
+        user_id: user_id,
+        product_id: product_id,
+        quantity: qtyToAdd
+      });
+      res.status(201).json({ message: "Product added to cart!", cartItem: newCartItem });
+    }
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
