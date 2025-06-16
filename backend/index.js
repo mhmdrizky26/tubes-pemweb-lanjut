@@ -7,6 +7,8 @@ import ProductRoute from "./routes/ProductRoute.js";
 import TransactionRoute from "./routes/TransactionRoute.js";
 import TransactionDetailRoute from './routes/TransactionDetailRoute.js';
 import CartRoute from './routes/CartRoute.js';
+import AuthRoutes from './routes/AuthRoute.js';
+import CheckoutRoute from './routes/CheckoutRoute.js';
 
 const app = express();
 app.use(cors());
@@ -18,5 +20,8 @@ app.use(ProductRoute);
 app.use(TransactionRoute);
 app.use(TransactionDetailRoute);
 app.use(CartRoute);
+app.use('/uploads', express.static('uploads'));
+app.use('/api/auth', AuthRoutes);
+app.use('/checkout', CheckoutRoute);
 
 app.listen(5000,()=>console.log('Server up and running.....'));
