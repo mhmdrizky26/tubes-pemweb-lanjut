@@ -81,6 +81,14 @@ Content-Type: application/json
   "category_name": "Elektronik"
 }
 
+### UPDATE KATEGORI
+PUT http://localhost:5000/categories/4
+Content-Type: application/json
+
+{
+  "category_name": "Kategori Update"
+}
+
 # CATEGORY
 ### GET
 GET http://localhost:5000/products

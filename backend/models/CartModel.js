@@ -40,7 +40,7 @@ const Cart = db.define('carts', {
 
 // Relasi
 Cart.belongsTo(User, { foreignKey: 'user_id' });
-Cart.belongsTo(Product, { foreignKey: 'product_id' });
+Cart.belongsTo(Product, { as: 'product', foreignKey: 'product_id' });
 
 export default Cart;
 
